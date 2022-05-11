@@ -57,16 +57,25 @@ def main(argv):
     start_index = 0
     rows_to_obtain = MAX_PAGE_SIZE
     while True:
-      result = service.reports().generate(
-          startDate='2011-01-01', endDate='2011-08-31',
-          filter=['AD_CLIENT_ID==' + ad_client_id],
-          metric=['PAGE_VIEWS', 'AD_REQUESTS', 'AD_REQUESTS_COVERAGE',
-                  'CLICKS', 'AD_REQUESTS_CTR', 'COST_PER_CLICK',
-                  'AD_REQUESTS_RPM', 'EARNINGS'],
+      result = (service.reports().generate(
+          startDate='2011-01-01',
+          endDate='2011-08-31',
+          filter=[f'AD_CLIENT_ID=={ad_client_id}'],
+          metric=[
+              'PAGE_VIEWS',
+              'AD_REQUESTS',
+              'AD_REQUESTS_COVERAGE',
+              'CLICKS',
+              'AD_REQUESTS_CTR',
+              'COST_PER_CLICK',
+              'AD_REQUESTS_RPM',
+              'EARNINGS',
+          ],
           dimension=['DATE'],
           sort=['+DATE'],
           startIndex=start_index,
-          maxResults=rows_to_obtain).execute()
+          maxResults=rows_to_obtain,
+      ).execute())
 
       # If this is the first page, display the headers.
       if start_index == 0:

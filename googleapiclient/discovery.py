@@ -143,7 +143,7 @@ def fix_method_name(name):
   """
     name = name.replace("$", "_").replace("-", "_")
     if keyword.iskeyword(name) or name in RESERVED_WORDS:
-        return name + "_"
+        return f"{name}_"
     else:
         return name
 
@@ -268,16 +268,8 @@ def build(
     # google-api-python-client 1.x which does not support the `static_discovery`
     # parameter.
     if static_discovery is None:
-        if discoveryServiceUrl is None:
-            static_discovery = True
-        else:
-            static_discovery = False
-
-    if http is None:
-        discovery_http = build_http()
-    else:
-        discovery_http = http
-
+        static_discovery = discoveryServiceUrl is None
+    discovery_http = build_http() if http is None else http
     service = None
 
     for discovery_url in _discovery_service_uri_options(discoveryServiceUrl, version):
@@ -321,7 +313,7 @@ def build(
         discovery_http.close()
 
     if service is None:
-        raise UnknownApiNameOrVersion("name: %s  version: %s" % (serviceName, version))
+        raise UnknownApiNameOrVersion(f"name: {serviceName}  version: {version}")
     else:
         return service
 
@@ -342,14 +334,13 @@ def _discovery_service_uri_options(discoveryServiceUrl, version):
 
     if discoveryServiceUrl is not None:
         return [discoveryServiceUrl]
-    if version is None:
-        # V1 Discovery won't work if the requested version is None
-        logger.warning(
-            "Discovery V1 does not support empty versions. Defaulting to V2..."
-        )
-        return [V2_DISCOVERY_URI]
-    else:
+    if version is not None:
         return [DISCOVERY_URI, V2_DISCOVERY_URI]
+    # V1 Discovery won't work if the requested version is None
+    logger.warning(
+        "Discovery V1 does not support empty versions. Defaulting to V2..."
+    )
+    return [V2_DISCOVERY_URI]
 
 
 def _retrieve_discovery_doc(
@@ -401,7 +392,7 @@ def _retrieve_discovery_doc(
         if content:
             return content
         else:
-            raise UnknownApiNameOrVersion("name: %s  version: %s" % (serviceName, version))
+            raise UnknownApiNameOrVersion(f"name: {serviceName}  version: {version}")
 
     actual_url = url
     # REMOTE_ADDR is defined by the CGI spec [RFC3875] as the environment
@@ -427,7 +418,7 @@ def _retrieve_discovery_doc(
     try:
         service = json.loads(content)
     except ValueError as e:
-        logger.error("Failed to parse as JSON: " + content)
+        logger.error(f"Failed to parse as JSON: {content}")
         raise InvalidJsonError()
     if cache_discovery and cache:
         cache.set(url, content)
@@ -522,7 +513,7 @@ def build_from_document(
         ]
         for option, name in banned_options:
             if option is not None:
-                raise ValueError("Arguments http and {} are mutually exclusive".format(name))
+                raise ValueError(f"Arguments http and {name} are mutually exclusive")
 
     if isinstance(service, str):
         service = json.loads(service)
@@ -596,18 +587,11 @@ def build_from_document(
 
         # If credentials are provided, create an authorized http instance;
         # otherwise, skip authentication.
-        if credentials:
-            http = _auth.authorized_http(credentials)
-
-        # If the service doesn't require scopes then there is no need for
-        # authentication.
-        else:
-            http = build_http()
-
+        http = _auth.authorized_http(credentials) if credentials else build_http()
         # Obtain client cert and create mTLS http channel if cert exists.
         client_cert_to_use = None
         use_client_cert = os.getenv(GOOGLE_API_USE_CLIENT_CERTIFICATE, "false")
-        if not use_client_cert in ("true", "false"):
+        if use_client_cert not in ("true", "false"):
             raise MutualTLSChannelError(
                 "Unsupported GOOGLE_API_USE_CLIENT_CERTIFICATE value. Accepted values: true, false"
             )
@@ -650,7 +634,7 @@ def build_from_document(
             mtls_endpoint = urllib.parse.urljoin(service["mtlsRootUrl"], service["servicePath"])
             use_mtls_endpoint = os.getenv(GOOGLE_API_USE_MTLS_ENDPOINT, "auto")
 
-            if not use_mtls_endpoint in ("never", "auto", "always"):
+            if use_mtls_endpoint not in ("never", "auto", "always"):
                 raise MutualTLSChannelError(
                     "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted values: never, auto, always"
                 )
@@ -691,22 +675,18 @@ def _cast(value, schema_type):
   Returns:
     A string representation of 'value' based on the schema_type.
   """
-    if schema_type == "string":
-        if type(value) == type("") or type(value) == type(u""):
-            return value
-        else:
-            return str(value)
+    if schema_type == "string" or schema_type not in [
+        "integer",
+        "number",
+        "boolean",
+    ]:
+        return value if type(value) == type("") else str(value)
     elif schema_type == "integer":
         return str(int(value))
     elif schema_type == "number":
         return str(float(value))
-    elif schema_type == "boolean":
-        return str(bool(value)).lower()
     else:
-        if type(value) == type("") or type(value) == type(u""):
-            return value
-        else:
-            return str(value)
+        return str(bool(value)).lower()
 
 
 def _media_size_to_long(maxSize):
@@ -722,10 +702,7 @@ def _media_size_to_long(maxSize):
         return 0
     units = maxSize[-2:].upper()
     bit_shift = _MEDIA_SIZE_BIT_SHIFTS.get(units)
-    if bit_shift is not None:
-        return int(maxSize[:-2]) << bit_shift
-    else:
-        return int(maxSize)
+    return int(maxSize) if bit_shift is None else int(maxSize[:-2]) << bit_shift
 
 
 def _media_path_url_from_info(root_desc, path_url):
@@ -893,7 +870,7 @@ def _urljoin(base, url):
     # absolute url.
     if url.startswith("http://") or url.startswith("https://"):
         return urllib.parse.urljoin(base, url)
-    new_base = base if base.endswith("/") else base + "/"
+    new_base = base if base.endswith("/") else f"{base}/"
     new_url = url[1:] if url.startswith("/") else url
     return new_base + new_url
 
@@ -1016,7 +993,7 @@ def createMethod(methodName, methodDesc, rootDesc, schema):
 
         for name in kwargs:
             if name not in parameters.argmap:
-                raise TypeError('Got an unexpected keyword argument {}'.format(name))
+                raise TypeError(f'Got an unexpected keyword argument {name}')
 
         # Remove args that have a value of None.
         keys = list(kwargs.keys())
@@ -1025,20 +1002,17 @@ def createMethod(methodName, methodDesc, rootDesc, schema):
                 del kwargs[name]
 
         for name in parameters.required_params:
-            if name not in kwargs:
-                # temporary workaround for non-paging methods incorrectly requiring
-                # page token parameter (cf. drive.changes.watch vs. drive.changes.list)
-                if name not in _PAGE_TOKEN_NAMES or _findPageTokenName(
+            if name not in kwargs and (
+                name not in _PAGE_TOKEN_NAMES
+                or _findPageTokenName(
                     _methodProperties(methodDesc, schema, "response")
-                ):
-                    raise TypeError('Missing required parameter "%s"' % name)
+                )
+            ):
+                raise TypeError('Missing required parameter "%s"' % name)
 
         for name, regex in parameters.pattern_params.items():
             if name in kwargs:
-                if isinstance(kwargs[name], str):
-                    pvalues = [kwargs[name]]
-                else:
-                    pvalues = kwargs[name]
+                pvalues = [kwargs[name]] if isinstance(kwargs[name], str) else kwargs[name]
                 for pvalue in pvalues:
                     if re.match(regex, pvalue) is None:
                         raise TypeError(
@@ -1122,7 +1096,7 @@ def createMethod(methodName, methodDesc, rootDesc, schema):
 
             # Check the maxSize
             if media_upload.size() is not None and media_upload.size() > maxSize > 0:
-                raise MediaUploadSizeError("Media larger than: %s" % maxSize)
+                raise MediaUploadSizeError(f"Media larger than: {maxSize}")
 
             # Use the media path uri for media uploads
             expanded_url = uritemplate.expand(mediaPathUrl, params)
@@ -1134,45 +1108,43 @@ def createMethod(methodName, methodDesc, rootDesc, schema):
                 # This is all we need to do for resumable, if the body exists it gets
                 # sent in the first request, otherwise an empty body is sent.
                 resumable = media_upload
+            elif body is None:
+                # This is a simple media upload
+                headers["content-type"] = media_upload.mimetype()
+                body = media_upload.getbytes(0, media_upload.size())
+                url = _add_query_parameter(url, "uploadType", "media")
             else:
-                # A non-resumable upload
-                if body is None:
-                    # This is a simple media upload
-                    headers["content-type"] = media_upload.mimetype()
-                    body = media_upload.getbytes(0, media_upload.size())
-                    url = _add_query_parameter(url, "uploadType", "media")
-                else:
-                    # This is a multipart/related upload.
-                    msgRoot = MIMEMultipart("related")
-                    # msgRoot should not write out it's own headers
-                    setattr(msgRoot, "_write_headers", lambda self: None)
+                # This is a multipart/related upload.
+                msgRoot = MIMEMultipart("related")
+                # msgRoot should not write out it's own headers
+                setattr(msgRoot, "_write_headers", lambda self: None)
 
-                    # attach the body as one part
-                    msg = MIMENonMultipart(*headers["content-type"].split("/"))
-                    msg.set_payload(body)
-                    msgRoot.attach(msg)
+                # attach the body as one part
+                msg = MIMENonMultipart(*headers["content-type"].split("/"))
+                msg.set_payload(body)
+                msgRoot.attach(msg)
 
-                    # attach the media as the second part
-                    msg = MIMENonMultipart(*media_upload.mimetype().split("/"))
-                    msg["Content-Transfer-Encoding"] = "binary"
+                # attach the media as the second part
+                msg = MIMENonMultipart(*media_upload.mimetype().split("/"))
+                msg["Content-Transfer-Encoding"] = "binary"
 
-                    payload = media_upload.getbytes(0, media_upload.size())
-                    msg.set_payload(payload)
-                    msgRoot.attach(msg)
-                    # encode the body: note that we can't use `as_string`, because
-                    # it plays games with `From ` lines.
-                    fp = io.BytesIO()
-                    g = _BytesGenerator(fp, mangle_from_=False)
-                    g.flatten(msgRoot, unixfrom=False)
-                    body = fp.getvalue()
+                payload = media_upload.getbytes(0, media_upload.size())
+                msg.set_payload(payload)
+                msgRoot.attach(msg)
+                # encode the body: note that we can't use `as_string`, because
+                # it plays games with `From ` lines.
+                fp = io.BytesIO()
+                g = _BytesGenerator(fp, mangle_from_=False)
+                g.flatten(msgRoot, unixfrom=False)
+                body = fp.getvalue()
 
-                    multipart_boundary = msgRoot.get_boundary()
-                    headers["content-type"] = (
-                        "multipart/related; " 'boundary="%s"'
-                    ) % multipart_boundary
-                    url = _add_query_parameter(url, "uploadType", "multipart")
+                multipart_boundary = msgRoot.get_boundary()
+                headers["content-type"] = (
+                    "multipart/related; " 'boundary="%s"'
+                ) % multipart_boundary
+                url = _add_query_parameter(url, "uploadType", "multipart")
 
-        logger.debug("URL being requested: %s %s" % (httpMethod, url))
+        logger.debug(f"URL being requested: {httpMethod} {url}")
         return self._requestBuilder(
             self._http,
             model.response,
@@ -1292,7 +1264,7 @@ Returns:
             request.uri = _add_query_parameter(
                 request.uri, pageTokenName, nextPageToken
             )
-            logger.debug("Next page request URL: %s %s" % (methodName, request.uri))
+            logger.debug(f"Next page request URL: {methodName} {request.uri}")
         else:
             # Replace pageToken value in request body
             model = self._model
@@ -1302,7 +1274,7 @@ Returns:
             request.body_size = len(request.body)
             if "content-length" in request.headers:
               del request.headers["content-length"]
-            logger.debug("Next page request body: %s %s" % (methodName, body))
+            logger.debug(f"Next page request body: {methodName} {body}")
 
         return request
 
@@ -1508,11 +1480,12 @@ class Resource(object):
             if not pageTokenName:
                 continue
             fixedMethodName, method = createNextMethod(
-                methodName + "_next",
+                f"{methodName}_next",
                 pageTokenName,
                 nextPageTokenName,
                 isPageTokenParameter,
             )
+
             self._set_dynamic_attr(
                 fixedMethodName, method.__get__(self, self.__class__)
             )

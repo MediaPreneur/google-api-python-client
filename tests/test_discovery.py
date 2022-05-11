@@ -407,7 +407,7 @@ class Utilities(unittest.TestCase):
             "rr": "string",
         }
         keys = list(param_types.keys())
-        self.assertEqual(parameters.argmap, dict((key, key) for key in keys))
+        self.assertEqual(parameters.argmap, {key: key for key in keys})
         self.assertEqual(parameters.required_params, [])
         self.assertEqual(sorted(parameters.repeated_params), ["er", "rr"])
         self.assertEqual(parameters.pattern_params, {"rr": "[a-z]+"})
@@ -426,12 +426,12 @@ class Utilities(unittest.TestCase):
 
         param_types = {"name": "string"}
         keys = list(param_types.keys())
-        self.assertEqual(parameters.argmap, dict((key, key) for key in keys))
+        self.assertEqual(parameters.argmap, {key: key for key in keys})
         self.assertEqual(parameters.required_params, ["name"])
         self.assertEqual(parameters.repeated_params, [])
         self.assertEqual(parameters.pattern_params, {})
         self.assertEqual(parameters.query_params, [])
-        self.assertEqual(parameters.path_params, set(["name"]))
+        self.assertEqual(parameters.path_params, {"name"})
         self.assertEqual(parameters.param_types, param_types)
         self.assertEqual(parameters.enum_params, {})
 
@@ -1560,7 +1560,7 @@ class Discovery(unittest.TestCase):
         request = zoo.animals().insert(media_body=datafile("small.png"), body={})
         self.assertTrue(request.headers["content-type"].startswith("multipart/related"))
         contents = read_datafile("small.png", "rb")
-        boundary = re.match(b"--=+([^=]+)", request.body).group(1)
+        boundary = re.match(b"--=+([^=]+)", request.body)[1]
         self.assertEqual(
             request.body.rstrip(b"\n"),  # Python 2.6 does not add a trailing \n
             b"--==============="

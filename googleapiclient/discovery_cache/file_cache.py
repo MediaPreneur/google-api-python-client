@@ -109,10 +109,9 @@ class Cache(base.Cache):
                     content, t = cache.get(url, (None, 0))
                     if _to_timestamp(datetime.datetime.now()) < t + self._max_age:
                         return content
-                return None
             else:
                 LOGGER.debug("Could not obtain a lock for the cache file.")
-                return None
+            return None
         except Exception as e:
             LOGGER.warning(e, exc_info=True)
         finally:

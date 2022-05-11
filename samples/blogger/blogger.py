@@ -49,31 +49,31 @@ def main(argv):
 
   try:
 
-      users = service.users()
+    users = service.users()
 
-      # Retrieve this user's profile information
-      thisuser = users.get(userId='self').execute()
-      print('This user\'s display name is: %s' % thisuser['displayName'])
+    # Retrieve this user's profile information
+    thisuser = users.get(userId='self').execute()
+    print('This user\'s display name is: %s' % thisuser['displayName'])
 
-      blogs = service.blogs()
+    blogs = service.blogs()
 
-      # Retrieve the list of Blogs this user has write privileges on
-      thisusersblogs = blogs.listByUser(userId='self').execute()
-      for blog in thisusersblogs['items']:
-        print('The blog named \'%s\' is at: %s' % (blog['name'], blog['url']))
+    # Retrieve the list of Blogs this user has write privileges on
+    thisusersblogs = blogs.listByUser(userId='self').execute()
+    for blog in thisusersblogs['items']:
+      print('The blog named \'%s\' is at: %s' % (blog['name'], blog['url']))
 
-      posts = service.posts()
+    posts = service.posts()
 
       # List the posts for each blog this user has
-      for blog in thisusersblogs['items']:
-        print('The posts for %s:' % blog['name'])
-        request = posts.list(blogId=blog['id'])
-        while request != None:
-          posts_doc = request.execute()
-          if 'items' in posts_doc and not (posts_doc['items'] is None):
-            for post in posts_doc['items']:
-              print('  %s (%s)' % (post['title'], post['url']))
-          request = posts.list_next(request, posts_doc)
+    for blog in thisusersblogs['items']:
+      print(f"The posts for {blog['name']}:")
+      request = posts.list(blogId=blog['id'])
+      while request != None:
+        posts_doc = request.execute()
+        if 'items' in posts_doc and posts_doc['items'] is not None:
+          for post in posts_doc['items']:
+            print(f"  {post['title']} ({post['url']})")
+        request = posts.list_next(request, posts_doc)
 
   except client.AccessTokenRefreshError:
     print ('The credentials have been revoked or expired, please re-run'

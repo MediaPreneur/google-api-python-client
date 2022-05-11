@@ -60,21 +60,21 @@ def main(argv):
 
   # Try to make a request to the API. Print the results or handle errors.
   try:
-    first_profile_id = get_first_profile_id(service)
-    if not first_profile_id:
-      print('Could not find a valid profile for this user.')
-    else:
+    if first_profile_id := get_first_profile_id(service):
       results = get_top_keywords(service, first_profile_id)
       print_results(results)
 
+    else:
+      print('Could not find a valid profile for this user.')
   except TypeError as error:
     # Handle errors in constructing a query.
-    print(('There was an error in constructing your query : %s' % error))
+    print(f'There was an error in constructing your query : {error}')
 
   except HttpError as error:
     # Handle API errors.
-    print(('Arg, there was an API error : %s : %s' %
-           (error.resp.status, error._get_reason())))
+    print(
+        f'Arg, there was an API error : {error.resp.status} : {error._get_reason()}'
+    )
 
   except AccessTokenRefreshError:
     # Handle Auth errors.
@@ -130,8 +130,8 @@ def get_top_keywords(service, profile_id):
     The response returned from the Core Reporting API.
   """
 
-  return service.data().ga().get(
-      ids='ga:' + profile_id,
+  return (service.data().ga().get(
+      ids=f'ga:{profile_id}',
       start_date='2012-01-01',
       end_date='2012-01-15',
       metrics='ga:visits',
@@ -139,7 +139,8 @@ def get_top_keywords(service, profile_id):
       sort='-ga:visits',
       filters='ga:medium==organic',
       start_index='1',
-      max_results='25').execute()
+      max_results='25',
+  ).execute())
 
 
 def print_results(results):
@@ -153,21 +154,19 @@ def print_results(results):
   """
 
   print()
-  print('Profile Name: %s' % results.get('profileInfo').get('profileName'))
+  print(f"Profile Name: {results.get('profileInfo').get('profileName')}")
   print()
 
   # Print header.
-  output = []
-  for header in results.get('columnHeaders'):
-    output.append('%30s' % header.get('name'))
+  output = [
+      '%30s' % header.get('name') for header in results.get('columnHeaders')
+  ]
   print(''.join(output))
 
   # Print data table.
   if results.get('rows', []):
     for row in results.get('rows'):
-      output = []
-      for cell in row:
-        output.append('%30s' % cell)
+      output = ['%30s' % cell for cell in row]
       print(''.join(output))
 
   else:

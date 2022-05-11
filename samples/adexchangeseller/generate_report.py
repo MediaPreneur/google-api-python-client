@@ -56,14 +56,23 @@ def main(argv):
       result = service.reports().saved().generate(
           savedReportId=saved_report_id).execute()
     elif ad_client_id:
-      result = service.reports().generate(
-          startDate='2011-01-01', endDate='2011-08-31',
-          filter=['AD_CLIENT_ID==' + ad_client_id],
-          metric=['PAGE_VIEWS', 'AD_REQUESTS', 'AD_REQUESTS_COVERAGE',
-                  'CLICKS', 'AD_REQUESTS_CTR', 'COST_PER_CLICK',
-                  'AD_REQUESTS_RPM', 'EARNINGS'],
+      result = (service.reports().generate(
+          startDate='2011-01-01',
+          endDate='2011-08-31',
+          filter=[f'AD_CLIENT_ID=={ad_client_id}'],
+          metric=[
+              'PAGE_VIEWS',
+              'AD_REQUESTS',
+              'AD_REQUESTS_COVERAGE',
+              'CLICKS',
+              'AD_REQUESTS_CTR',
+              'COST_PER_CLICK',
+              'AD_REQUESTS_RPM',
+              'EARNINGS',
+          ],
           dimension=['DATE'],
-          sort=['+DATE']).execute()
+          sort=['+DATE'],
+      ).execute())
     else:
       argparser.print_help()
       sys.exit(1)

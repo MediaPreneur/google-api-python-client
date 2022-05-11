@@ -51,7 +51,7 @@ def get_directory_doc():
   ip = os.environ.get('REMOTE_ADDR', None)
   uri = DISCOVERY_URI
   if ip:
-    uri += ('&userIp=' + ip)
+    uri += f'&userIp={ip}'
   resp, content = http.request(uri)
   directory = json.loads(content)['items']
   for item in directory:
@@ -104,8 +104,9 @@ class ResourceHandler(webapp.RequestHandler):
 
   def get(self, service_name, version, collection):
 
-    return self.redirect('https://google-api-client-libraries.appspot.com/documentation/%s/%s/python/latest/%s_%s.%s.html'
-        % (service_name, version, service_name, version, collection))
+    return self.redirect(
+        f'https://google-api-client-libraries.appspot.com/documentation/{service_name}/{version}/python/latest/{service_name}_{version}.{collection}.html'
+    )
 
 
 def main():

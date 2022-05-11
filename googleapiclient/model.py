@@ -150,10 +150,10 @@ class BaseModel(Model):
             headers["x-goog-api-client"] += " "
         else:
             headers["x-goog-api-client"] = ""
-        headers["x-goog-api-client"] += "gdcl/%s gl-python/%s" % (
-            _LIBRARY_VERSION,
-            _PY_VERSION,
-        )
+        headers[
+            "x-goog-api-client"
+        ] += f"gdcl/{_LIBRARY_VERSION} gl-python/{_PY_VERSION}"
+
 
         if body_value is not None:
             headers["content-type"] = self.content_type
@@ -182,7 +182,7 @@ class BaseModel(Model):
                 if isinstance(value, str) and callable(value.encode):
                     value = value.encode("utf-8")
                 astuples.append((key, value))
-        return "?" + urllib.parse.urlencode(astuples)
+        return f"?{urllib.parse.urlencode(astuples)}"
 
     def _log_response(self, resp, content):
         """Logs debugging information about the response if requested."""
@@ -208,17 +208,15 @@ class BaseModel(Model):
       googleapiclient.errors.HttpError if a non 2xx response is received.
     """
         self._log_response(resp, content)
-        # Error handling is TBD, for example, do we retry
-        # for some operation/error combinations?
         if resp.status < 300:
-            if resp.status == 204:
-                # A 204: No Content response should be treated differently
-                # to all the other success states
-                return self.no_content_response
-            return self.deserialize(content)
-        else:
-            LOGGER.debug("Content from bad request was: %r" % content)
-            raise HttpError(resp, content)
+            return (
+                self.no_content_response
+                if resp.status == 204
+                else self.deserialize(content)
+            )
+
+        LOGGER.debug("Content from bad request was: %r" % content)
+        raise HttpError(resp, content)
 
     def serialize(self, body_value):
         """Perform the actual Python object serialization.
@@ -399,9 +397,6 @@ def makepatch(original, modified):
             else:
                 # In the case of simple types or arrays we just replace
                 patch[key] = modified_value
-        else:
-            # Don't add anything to patch if there's no change
-            pass
     for key in modified:
         if key not in original:
             patch[key] = modified[key]

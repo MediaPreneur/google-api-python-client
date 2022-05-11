@@ -70,13 +70,13 @@ def main(argv):
           print('  Targeting info:')
           targeting_info = custom_channel['targetingInfo']
           if 'adsAppearOn' in targeting_info:
-            print('    Ads appear on: %s' % targeting_info['adsAppearOn'])
+            print(f"    Ads appear on: {targeting_info['adsAppearOn']}")
           if 'location' in targeting_info:
-            print('    Location: %s' % targeting_info['location'])
+            print(f"    Location: {targeting_info['location']}")
           if 'description' in targeting_info:
-            print('    Description: %s' % targeting_info['description'])
+            print(f"    Description: {targeting_info['description']}")
           if 'siteLanguage' in targeting_info:
-            print('    Site language: %s' % targeting_info['siteLanguage'])
+            print(f"    Site language: {targeting_info['siteLanguage']}")
 
       request = service.customchannels().list_next(request, result)
 

@@ -47,7 +47,7 @@ def main():
 
   # Get data for the single public offer:
   print()
-  print('Getting data for offer %s' % googleId)
+  print(f'Getting data for offer {googleId}')
   res = p.products().get(
       source='public',
       accountId='5968952',
@@ -60,9 +60,9 @@ def main():
 def print_item(item):
   """Displays a single item: title, merchant, link."""
   product = item['product']
-  print('- %s [%s] (%s)' % (product['title'],
-                          product['author']['name'],
-                          product['link']))
+  print(
+      f"- {product['title']} [{product['author']['name']}] ({product['link']})"
+  )
 
 
 def print_items(items):

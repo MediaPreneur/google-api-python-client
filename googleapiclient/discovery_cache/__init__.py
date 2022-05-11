@@ -64,7 +64,7 @@ def get_static_doc(serviceName, version):
     """
 
     content = None
-    doc_name = "{}.{}.json".format(serviceName, version)
+    doc_name = f"{serviceName}.{version}.json"
 
     try:
         with open(os.path.join(DISCOVERY_DOC_DIR, doc_name), 'r') as f:

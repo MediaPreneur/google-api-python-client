@@ -37,7 +37,7 @@ def main(argv):
   try:
     person = service.people().get(userId='me').execute()
 
-    print('Got your ID: %s' % person['displayName'])
+    print(f"Got your ID: {person['displayName']}")
     print()
     print('%-040s -> %s' % ('[Activitity ID]', '[Content]'))
 

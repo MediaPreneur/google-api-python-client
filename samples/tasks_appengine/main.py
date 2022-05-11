@@ -48,7 +48,7 @@ class MainHandler(webapp2.RequestHandler):
 
 
 def truncate(s, l):
-  return s[:l] + '...' if len(s) > l else s
+  return f'{s[:l]}...' if len(s) > l else s
 
 
 application = webapp2.WSGIApplication([

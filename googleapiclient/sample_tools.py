@@ -65,7 +65,7 @@ def init(
         )
 
     if scope is None:
-        scope = "https://www.googleapis.com/auth/" + name
+        scope = f"https://www.googleapis.com/auth/{name}"
 
     # Parser command-line arguments.
     parent_parsers = [tools.argparser]
@@ -92,7 +92,7 @@ def init(
     # If the credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # credentials will get written back to a file.
-    storage = file.Storage(name + ".dat")
+    storage = file.Storage(f"{name}.dat")
     credentials = storage.get()
     if credentials is None or credentials.invalid:
         credentials = tools.run_flow(flow, storage, flags)

@@ -64,7 +64,7 @@ def main(argv):
     # Now retrieve the next 2 events
     match = re.search('(?<=continuationToken=).+$', activity_list['next'])
     if match is not None:
-      next_token = match.group(0)
+      next_token = match[0]
 
       print('\nRetrieving the next 2 activities...')
       activity_list = activities.list(

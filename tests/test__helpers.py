@@ -118,19 +118,19 @@ class Test_update_query_params(unittest.TestCase):
     def test_update_query_params_no_params(self):
         uri = "http://www.google.com"
         updated = _helpers.update_query_params(uri, {"a": "b"})
-        self.assertEqual(updated, uri + "?a=b")
+        self.assertEqual(updated, f"{uri}?a=b")
 
     def test_update_query_params_existing_params(self):
         uri = "http://www.google.com?x=y"
         updated = _helpers.update_query_params(uri, {"a": "b", "c": "d&"})
-        hardcoded_update = uri + "&a=b&c=d%26"
+        hardcoded_update = f"{uri}&a=b&c=d%26"
         assertUrisEqual(self, updated, hardcoded_update)
 
     def test_update_query_params_replace_param(self):
         base_uri = "http://www.google.com"
-        uri = base_uri + "?x=a"
+        uri = f"{base_uri}?x=a"
         updated = _helpers.update_query_params(uri, {"x": "b", "y": "c"})
-        hardcoded_update = base_uri + "?x=b&y=c"
+        hardcoded_update = f"{base_uri}?x=b&y=c"
         assertUrisEqual(self, updated, hardcoded_update)
 
     def test_update_query_params_repeated_params(self):

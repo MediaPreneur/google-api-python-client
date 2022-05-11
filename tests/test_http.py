@@ -117,7 +117,7 @@ class MockCredentials(Credentials):
 
     def apply(self, headers):
         self._applied += 1
-        headers["authorization"] = self._bearer_token + " " + str(self._refreshed)
+        headers["authorization"] = f"{self._bearer_token} {str(self._refreshed)}"
 
 
 class HttpMockWithErrors(object):
@@ -161,18 +161,17 @@ class HttpMockWithNonRetriableErrors(object):
     def request(self, *args, **kwargs):
         if not self.num_errors:
             return httplib2.Response(self.success_json), self.success_data
-        else:
-            self.num_errors -= 1
-            ex = OSError()
-            # set errno to a non-retriable value
-            try:
-                # For Windows:
-                ex.errno = socket.errno.WSAEHOSTUNREACH
-            except AttributeError:
-                # For Linux/Mac:
-                ex.errno = socket.errno.EHOSTUNREACH
-            # Now raise the correct timeout error.
-            raise ex
+        self.num_errors -= 1
+        ex = OSError()
+        # set errno to a non-retriable value
+        try:
+            # For Windows:
+            ex.errno = socket.errno.WSAEHOSTUNREACH
+        except AttributeError:
+            # For Linux/Mac:
+            ex.errno = socket.errno.EHOSTUNREACH
+        # Now raise the correct timeout error.
+        raise ex
 
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
@@ -306,16 +305,15 @@ class TestMediaIoBaseUpload(unittest.TestCase):
         self.assertEqual(b"PNG", upload.getbytes(1, 3))
 
     def test_media_io_base_upload_from_file_object(self):
-        f = open(datafile("small.png"), "rb")
-        upload = MediaIoBaseUpload(
-            fd=f, mimetype="image/png", chunksize=500, resumable=True
-        )
-        self.assertEqual("image/png", upload.mimetype())
-        self.assertEqual(190, upload.size())
-        self.assertEqual(True, upload.resumable())
-        self.assertEqual(500, upload.chunksize())
-        self.assertEqual(b"PNG", upload.getbytes(1, 3))
-        f.close()
+        with open(datafile("small.png"), "rb") as f:
+            upload = MediaIoBaseUpload(
+                fd=f, mimetype="image/png", chunksize=500, resumable=True
+            )
+            self.assertEqual("image/png", upload.mimetype())
+            self.assertEqual(190, upload.size())
+            self.assertEqual(True, upload.resumable())
+            self.assertEqual(500, upload.chunksize())
+            self.assertEqual(b"PNG", upload.getbytes(1, 3))
 
     def test_media_io_base_upload_serializable(self):
         f = open(datafile("small.png"), "rb")
@@ -1208,10 +1206,8 @@ class TestBatch(unittest.TestCase):
 
     def test_serialize_request_media_body(self):
         batch = BatchHttpRequest()
-        f = open(datafile("small.png"), "rb")
-        body = f.read()
-        f.close()
-
+        with open(datafile("small.png"), "rb") as f:
+            body = f.read()
         request = HttpRequest(
             None,
             None,
@@ -1287,7 +1283,7 @@ class TestBatch(unittest.TestCase):
         from googleapiclient.http import MAX_BATCH_LIMIT
 
         batch = BatchHttpRequest()
-        for i in range(0, MAX_BATCH_LIMIT):
+        for _ in range(MAX_BATCH_LIMIT):
             batch.add(
                 HttpRequest(
                     None,
@@ -1399,11 +1395,7 @@ class TestBatch(unittest.TestCase):
                         # assert correct header folding
                         self.assertTrue(line.endswith("+"), line)
                         header_continuation = lines[n + 1]
-                        self.assertEqual(
-                            header_continuation,
-                            " %s>" % request_id,
-                            header_continuation,
-                        )
+                        self.assertEqual(header_continuation, f" {request_id}>", header_continuation)
 
     def test_execute_initial_refresh_oauth2(self):
         batch = BatchHttpRequest()

@@ -28,6 +28,7 @@ files in the samples. The format of the README file is:
 
    The rest of the file is ignored when it comes to building the index.
 """
+
 from __future__ import print_function
 
 import httplib2
@@ -44,10 +45,9 @@ if r.status != 200:
     raise ValueError("Received non-200 response when retrieving Discovery.")
 
 # Dictionary mapping api names to their discovery description.
-DIRECTORY = {}
-for item in json.loads(c)["items"]:
-    if item["preferred"]:
-        DIRECTORY[item["name"]] = item
+DIRECTORY = {
+    item["name"]: item for item in json.loads(c)["items"] if item["preferred"]
+}
 
 # A list of valid keywords. Should not be taken as complete, add to
 # this list as needed.
@@ -77,7 +77,7 @@ def get_lines(name, lines):
     List of values in the lines that match.
   """
     retval = []
-    matches = itertools.ifilter(lambda x: x.startswith(name + ":"), lines)
+    matches = itertools.ifilter(lambda x: x.startswith(f"{name}:"), lines)
     for line in matches:
         retval.extend(line[len(name) + 1 :].split())
     return retval
@@ -88,7 +88,7 @@ def wiki_escape(s):
     ret = []
     for word in s.split():
         if re.match(r"[A-Z]+[a-z]+[A-Z]", word):
-            word = "!%s" % word
+            word = f"!{word}"
         ret.append(word)
     return " ".join(ret)
 
@@ -112,20 +112,18 @@ def context_from_sample(api, keywords, dirname, desc, uri):
         uri = "".join(uri)
     if api is None:
         return None
-    else:
-        entry = DIRECTORY[api]
-        context = {
-            "api": api,
-            "version": entry["version"],
-            "api_name": wiki_escape(entry.get("title", entry.get("description"))),
-            "api_desc": wiki_escape(entry["description"]),
-            "api_icon": entry["icons"]["x32"],
-            "keywords": keywords,
-            "dir": dirname,
-            "uri": uri,
-            "desc": wiki_escape(desc),
-        }
-        return context
+    entry = DIRECTORY[api]
+    return {
+        "api": api,
+        "version": entry["version"],
+        "api_name": wiki_escape(entry.get("title", entry.get("description"))),
+        "api_desc": wiki_escape(entry["description"]),
+        "api_icon": entry["icons"]["x32"],
+        "keywords": keywords,
+        "dir": dirname,
+        "uri": uri,
+        "desc": wiki_escape(desc),
+    }
 
 
 def keyword_context_from_sample(keywords, dirname, desc, uri):
@@ -146,13 +144,12 @@ def keyword_context_from_sample(keywords, dirname, desc, uri):
         uri = BASE_HG_URI + dirname.replace("/", "%2F")
     else:
         uri = "".join(uri)
-    context = {
+    return {
         "keywords": keywords,
         "dir": dirname,
         "uri": uri,
         "desc": wiki_escape(desc),
     }
-    return context
 
 
 def scan_readme_files(dirname):
@@ -183,9 +180,7 @@ def scan_readme_files(dirname):
 
                 for k in keywords:
                     if k not in KEYWORDS:
-                        raise ValueError(
-                            "%s is not a valid keyword in file %s" % (k, filename)
-                        )
+                        raise ValueError(f"{k} is not a valid keyword in file {filename}")
                 keyword_set.update(keywords)
                 if not api:
                     api = [None]
@@ -230,8 +225,13 @@ Documentation for the %(api_name)s in [https://google-api-client-libraries.appsp
     for keyword, keyword_name in KEYWORDS.iteritems():
         if keyword not in keyword_set:
             continue
-        page.append("\n= %s Samples =\n\n" % keyword_name)
-        page.append("<table border=1 cellspacing=0 cellpadding=8px>\n")
+        page.extend(
+            (
+                "\n= %s Samples =\n\n" % keyword_name,
+                "<table border=1 cellspacing=0 cellpadding=8px>\n",
+            )
+        )
+
         for _, keywords, dirname, desc, uri in samples:
             context = keyword_context_from_sample(keywords, dirname, desc, uri)
             if keyword not in keywords:

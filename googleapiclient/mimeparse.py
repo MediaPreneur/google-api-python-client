@@ -43,8 +43,9 @@ def parse_mime_type(mime_type):
        """
     parts = mime_type.split(";")
     params = dict(
-        [tuple([s.strip() for s in param.split("=", 1)]) for param in parts[1:]]
+        [tuple(s.strip() for s in param.split("=", 1)) for param in parts[1:]]
     )
+
     full_type = parts[0].strip()
     # Java URLConnection class sends an Accept header that includes a
     # single '*'. Turn it into a legal wildcard.
@@ -164,13 +165,11 @@ def best_match(supported, header):
     """
     split_header = _filter_blank(header.split(","))
     parsed_header = [parse_media_range(r) for r in split_header]
-    weighted_matches = []
-    pos = 0
-    for mime_type in supported:
-        weighted_matches.append(
-            (fitness_and_quality_parsed(mime_type, parsed_header), pos, mime_type)
-        )
-        pos += 1
+    weighted_matches = [
+        (fitness_and_quality_parsed(mime_type, parsed_header), pos, mime_type)
+        for pos, mime_type in enumerate(supported)
+    ]
+
     weighted_matches.sort()
 
     return weighted_matches[-1][0][1] and weighted_matches[-1][2] or ""

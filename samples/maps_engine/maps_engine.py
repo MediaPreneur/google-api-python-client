@@ -99,11 +99,7 @@ def UploadShapefile(service, project_id, shapefile_prefix):
   """
   # A shapefile is actually a bunch of files; GME requires these four suffixes.
   suffixes = ["shp", "dbf", "prj", "shx"]
-  files = []
-  for suffix in suffixes:
-    files.append({
-        "filename": "%s.%s" % (shapefile_prefix, suffix)
-    })
+  files = [{"filename": f"{shapefile_prefix}.{suffix}"} for suffix in suffixes]
   metadata = {
       "projectId": project_id,
       "name": shapefile_prefix,
@@ -122,7 +118,7 @@ def UploadShapefile(service, project_id, shapefile_prefix):
 
   # And now upload each of the files individually, passing in the table id.
   for suffix in suffixes:
-    shapefile = "%s.%s" % (shapefile_prefix, suffix)
+    shapefile = f"{shapefile_prefix}.{suffix}"
     media_body = MediaFileUpload(shapefile, mimetype="application/octet-stream")
     logging.info("uploading %s", shapefile)
 

@@ -227,7 +227,7 @@ def method_params(doc):
             if pname is None:
                 return
             if "(required)" not in desc:
-                pname = pname + "=None"
+                pname = f"{pname}=None"
                 parameters.append(pname)
             else:
                 # required params should be put straight into sorted_parameters
@@ -290,7 +290,7 @@ def breadcrumbs(path, root_discovery):
         display = p
         if i == 0:
             display = root_discovery.get("title", display)
-        crumbs.append('<a href="{}.html">{}</a>'.format(prefix + p, display))
+        crumbs.append(f'<a href="{prefix + p}.html">{display}</a>')
         accumulated.append(p)
 
     return " . ".join(crumbs)
@@ -313,9 +313,10 @@ def document_collection(resource, path, root_discovery, discovery, css=CSS):
     html = [
         "<html><body>",
         css,
-        "<h1>%s</h1>" % breadcrumbs(path[:-1], root_discovery),
+        f"<h1>{breadcrumbs(path[:-1], root_discovery)}</h1>",
         "<h2>Instance Methods</h2>",
     ]
+
 
     # Which methods are for collections.
     for name in dir(resource):
@@ -362,11 +363,8 @@ def document_collection_recursive(
 ):
     html = document_collection(resource, path, root_discovery, discovery)
 
-    f = open(pathlib.Path(doc_destination_dir).joinpath(path + "html"), "w")
-
-    f.write(html)
-    f.close()
-
+    with open(pathlib.Path(doc_destination_dir).joinpath(f"{path}html"), "w") as f:
+        f.write(html)
     for name in dir(resource):
         if (
             not name.startswith("_")
@@ -406,7 +404,7 @@ def document_api(name, version, uri, doc_destination_dir):
     if resp.status == 200:
         discovery = json.loads(content)
         service = build_from_document(discovery)
-        doc_name = "{}.{}.json".format(name, version)
+        doc_name = f"{name}.{version}.json"
         discovery_file_path = DISCOVERY_DOC_DIR / doc_name
         revision = None
 
@@ -429,21 +427,18 @@ def document_api(name, version, uri, doc_destination_dir):
                 f.truncate()
 
     elif resp.status == 404:
-        print(
-            "Warning: {} {} not found. HTTP Code: {}".format(name, version, resp.status)
-        )
+        print(f"Warning: {name} {version} not found. HTTP Code: {resp.status}")
         return
     else:
         print(
-            "Warning: {} {} could not be built. HTTP Code: {}".format(
-                name, version, resp.status
-            )
+            f"Warning: {name} {version} could not be built. HTTP Code: {resp.status}"
         )
+
         return
 
     document_collection_recursive(
         service,
-        "{}_{}.".format(name, safe_version(version)),
+        f"{name}_{safe_version(version)}.",
         discovery,
         discovery,
         doc_destination_dir,
@@ -469,7 +464,7 @@ def document_api_from_discovery_document(discovery_url, doc_destination_dir):
 
     document_collection_recursive(
         service,
-        "{}_{}.".format(name, version),
+        f"{name}_{version}.",
         discovery,
         discovery,
         doc_destination_dir,
@@ -507,12 +502,12 @@ def generate_all_api_documents(directory_uri=DIRECTORY_URI, doc_destination_dir=
 
         markdown = []
         for api, versions in api_directory.items():
-            markdown.append("## %s" % api)
-            for version in versions:
-                markdown.append(
-                    "* [%s](http://googleapis.github.io/google-api-python-client/docs/dyn/%s_%s.html)"
-                    % (version, api, safe_version(version))
-                )
+            markdown.append(f"## {api}")
+            markdown.extend(
+                f"* [{version}](http://googleapis.github.io/google-api-python-client/docs/dyn/{api}_{safe_version(version)}.html)"
+                for version in versions
+            )
+
             markdown.append("\n")
 
         with open(BASE / "index.md", "w") as f:

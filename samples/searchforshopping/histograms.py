@@ -50,7 +50,7 @@ def main():
   weighting = 50.0 / max(values)
 
   for label, value in zip(labels, values):
-    print(label, '#' * int(weighting * value), '(%s)' % value)
+    print(label, '#' * int(weighting * value), f'({value})')
 
   print()
 

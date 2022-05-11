@@ -44,7 +44,7 @@ def create_instance(compute, project, zone, name, bucket):
     source_disk_image = image_response['selfLink']
 
     # Configure the machine
-    machine_type = "zones/%s/machineTypes/n1-standard-1" % zone
+    machine_type = f"zones/{zone}/machineTypes/n1-standard-1"
     startup_script = open(
         os.path.join(
             os.path.dirname(__file__), 'startup-script.sh'), 'r').read()
@@ -151,7 +151,7 @@ def main(project, bucket, zone, instance_name, wait=True):
 
     instances = list_instances(compute, project, zone)
 
-    print('Instances in project %s and zone %s:' % (project, zone))
+    print(f'Instances in project {project} and zone {zone}:')
     for instance in instances:
         print(' - ' + instance['name'])
 

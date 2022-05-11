@@ -61,8 +61,14 @@ class HttpError(Error):
                 data = self.content.decode("utf-8")
             if isinstance(data, dict):
                 reason = data["error"]["message"]
-                error_detail_keyword = next((kw for kw in ["detail", "details", "errors", "message"] if kw in data["error"]), "")
-                if error_detail_keyword:
+                if error_detail_keyword := next(
+                    (
+                        kw
+                        for kw in ["detail", "details", "errors", "message"]
+                        if kw in data["error"]
+                    ),
+                    "",
+                ):
                     self.error_details = data["error"][error_detail_keyword]
             elif isinstance(data, list) and len(data) > 0:
                 first_error = data[0]
@@ -176,7 +182,7 @@ class UnexpectedMethodError(Error):
     def __init__(self, methodId=None):
         """Constructor for an UnexpectedMethodError."""
         super(UnexpectedMethodError, self).__init__(
-            "Received unexpected call %s" % methodId
+            f"Received unexpected call {methodId}"
         )
 
 
@@ -186,5 +192,5 @@ class UnexpectedBodyError(Error):
     def __init__(self, expected, provided):
         """Constructor for an UnexpectedMethodError."""
         super(UnexpectedBodyError, self).__init__(
-            "Expected: [%s] - Provided: [%s]" % (expected, provided)
+            f"Expected: [{expected}] - Provided: [{provided}]"
         )

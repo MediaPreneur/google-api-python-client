@@ -44,15 +44,14 @@ class BuildPrBody:
             name (str): The name of the api.
         """
 
-        url = "https://github.com/googleapis/google-api-python-client/commit/"
         sha = None
         api_link = ""
 
         file_path = pathlib.Path(self._change_summary_directory) / "{0}.sha".format(name)
         if file_path.is_file():
+            url = "https://github.com/googleapis/google-api-python-client/commit/"
             with open(file_path, "r") as f:
-                sha = f.readline().rstrip()
-                if sha:
+                if sha := f.readline().rstrip():
                     api_link = "{0}{1}".format(url, sha)
 
         return api_link

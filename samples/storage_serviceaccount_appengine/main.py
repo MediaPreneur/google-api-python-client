@@ -70,8 +70,8 @@ class MainHandler(webapp.RequestHandler):
       resp, content = http.request(URI + bucket, "GET")
       if resp.status != 200:
         # If error getting bucket listing, raise exception.
-        err = 'Error: ' + str(resp.status) + ', bucket: ' + bucket + \
-              ', response: ' + str(content)
+        err = (f'Error: {str(resp.status)}, bucket: {bucket}' +
+               ', response: ') + str(content)
         raise Exception(err)
       # Edit returned bucket listing XML to insert a reference to our style
       # sheet for nice formatting and send results to client.

@@ -82,14 +82,15 @@ def with_scopes(credentials, scopes):
     """
     if HAS_GOOGLE_AUTH and isinstance(credentials, google.auth.credentials.Credentials):
         return google.auth.credentials.with_scopes_if_required(credentials, scopes)
-    else:
-        try:
-            if credentials.create_scoped_required():
-                return credentials.create_scoped(scopes)
-            else:
-                return credentials
-        except AttributeError:
-            return credentials
+    try:
+        return (
+            credentials.create_scoped(scopes)
+            if credentials.create_scoped_required()
+            else credentials
+        )
+
+    except AttributeError:
+        return credentials
 
 
 def authorized_http(credentials):
@@ -106,17 +107,18 @@ def authorized_http(credentials):
     """
     from googleapiclient.http import build_http
 
-    if HAS_GOOGLE_AUTH and isinstance(credentials, google.auth.credentials.Credentials):
-        if google_auth_httplib2 is None:
-            raise ValueError(
-                "Credentials from google.auth specified, but "
-                "google-api-python-client is unable to use these credentials "
-                "unless google-auth-httplib2 is installed. Please install "
-                "google-auth-httplib2."
-            )
-        return google_auth_httplib2.AuthorizedHttp(credentials, http=build_http())
-    else:
+    if not HAS_GOOGLE_AUTH or not isinstance(
+        credentials, google.auth.credentials.Credentials
+    ):
         return credentials.authorize(build_http())
+    if google_auth_httplib2 is None:
+        raise ValueError(
+            "Credentials from google.auth specified, but "
+            "google-api-python-client is unable to use these credentials "
+            "unless google-auth-httplib2 is installed. Please install "
+            "google-auth-httplib2."
+        )
+    return google_auth_httplib2.AuthorizedHttp(credentials, http=build_http())
 
 
 def refresh_credentials(credentials):
@@ -125,11 +127,12 @@ def refresh_credentials(credentials):
     # Http instance which would cause a weird recursive loop of refreshing
     # and likely tear a hole in spacetime.
     refresh_http = httplib2.Http()
-    if HAS_GOOGLE_AUTH and isinstance(credentials, google.auth.credentials.Credentials):
-        request = google_auth_httplib2.Request(refresh_http)
-        return credentials.refresh(request)
-    else:
+    if not HAS_GOOGLE_AUTH or not isinstance(
+        credentials, google.auth.credentials.Credentials
+    ):
         return credentials.refresh(refresh_http)
+    request = google_auth_httplib2.Request(refresh_http)
+    return credentials.refresh(request)
 
 
 def apply_credentials(credentials, headers):

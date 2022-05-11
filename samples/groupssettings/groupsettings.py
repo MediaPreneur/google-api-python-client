@@ -84,13 +84,10 @@ def access_settings(service, groupId, settings):
     print('\nGive access parameters to update group access permissions\n')
     return
 
-  body = {}
-
-  # Settings might contain null value for some keys(properties). 
-  # Extract the properties with values and add to dictionary body.
-  for key in settings.iterkeys():
-    if settings[key] is not None:
-      body[key] = settings[key]
+  body = {
+      key: settings[key]
+      for key in settings.iterkeys() if settings[key] is not None
+  }
 
   # Update the properties of group
   g1 = group.update(groupUniqueId=groupId, body=body).execute()

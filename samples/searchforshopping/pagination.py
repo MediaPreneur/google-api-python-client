@@ -35,17 +35,16 @@ def main():
   itemsPerPage = response['itemsPerPage']
   totalItems = response['totalItems']
   for i in range(1, totalItems, itemsPerPage):
-    answer = input('About to display results from %s to %s, y/(n)? ' %
-                   (i, i + itemsPerPage))
+    answer = input(
+        f'About to display results from {i} to {i + itemsPerPage}, y/(n)? ')
     if answer.strip().lower().startswith('n'):
       # Stop if the user has had enough
       break
-    else:
-      # Fetch this series of results
-      request = resource.list(source='public', country='US',
-                              q=u'digital camera', startIndex=i)
-      response = request.execute()
-      pprint.pprint(response)
+    # Fetch this series of results
+    request = resource.list(source='public', country='US',
+                            q=u'digital camera', startIndex=i)
+    response = request.execute()
+    pprint.pprint(response)
 
 
 if __name__ == '__main__':

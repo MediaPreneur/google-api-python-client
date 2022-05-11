@@ -74,12 +74,13 @@ def main(argv):
 
   except TypeError as error:
     # Handle errors in constructing a query.
-    print(('There was an error in constructing your query : %s' % error))
+    print(f'There was an error in constructing your query : {error}')
 
   except HttpError as error:
     # Handle API errors.
-    print(('Arg, there was an API error : %s : %s' %
-           (error.resp.status, error._get_reason())))
+    print(
+        f'Arg, there was an API error : {error.resp.status} : {error._get_reason()}'
+    )
 
   except AccessTokenRefreshError:
     print ('The credentials have been revoked or expired, please re-run'
@@ -145,16 +146,16 @@ def print_accounts(accounts_response):
   print()
 
   for account in accounts_response.get('items', []):
-    print('Account ID      = %s' % account.get('id'))
-    print('Kind            = %s' % account.get('kind'))
-    print('Self Link       = %s' % account.get('selfLink'))
-    print('Account Name    = %s' % account.get('name'))
-    print('Created         = %s' % account.get('created'))
-    print('Updated         = %s' % account.get('updated'))
+    print(f"Account ID      = {account.get('id')}")
+    print(f"Kind            = {account.get('kind')}")
+    print(f"Self Link       = {account.get('selfLink')}")
+    print(f"Account Name    = {account.get('name')}")
+    print(f"Created         = {account.get('created')}")
+    print(f"Updated         = {account.get('updated')}")
 
     child_link = account.get('childLink')
-    print('Child link href = %s' % child_link.get('href'))
-    print('Child link type = %s' % child_link.get('type'))
+    print(f"Child link href = {child_link.get('href')}")
+    print(f"Child link type = {child_link.get('type')}")
     print()
 
   if not accounts_response.get('items'):
@@ -174,23 +175,22 @@ def print_webproperties(webproperties_response):
   print()
 
   for webproperty in webproperties_response.get('items', []):
-    print('Kind               = %s' % webproperty.get('kind'))
-    print('Account ID         = %s' % webproperty.get('accountId'))
-    print('Web Property ID    = %s' % webproperty.get('id'))
-    print(('Internal Web Property ID = %s' %
-           webproperty.get('internalWebPropertyId')))
+    print(f"Kind               = {webproperty.get('kind')}")
+    print(f"Account ID         = {webproperty.get('accountId')}")
+    print(f"Web Property ID    = {webproperty.get('id')}")
+    print(f"Internal Web Property ID = {webproperty.get('internalWebPropertyId')}")
 
-    print('Website URL        = %s' % webproperty.get('websiteUrl'))
-    print('Created            = %s' % webproperty.get('created'))
-    print('Updated            = %s' % webproperty.get('updated'))
+    print(f"Website URL        = {webproperty.get('websiteUrl')}")
+    print(f"Created            = {webproperty.get('created')}")
+    print(f"Updated            = {webproperty.get('updated')}")
 
-    print('Self Link          = %s' % webproperty.get('selfLink'))
+    print(f"Self Link          = {webproperty.get('selfLink')}")
     parent_link = webproperty.get('parentLink')
-    print('Parent link href   = %s' % parent_link.get('href'))
-    print('Parent link type   = %s' % parent_link.get('type'))
+    print(f"Parent link href   = {parent_link.get('href')}")
+    print(f"Parent link type   = {parent_link.get('type')}")
     child_link = webproperty.get('childLink')
-    print('Child link href    = %s' % child_link.get('href'))
-    print('Child link type    = %s' % child_link.get('type'))
+    print(f"Child link href    = {child_link.get('href')}")
+    print(f"Child link type    = {child_link.get('type')}")
     print()
 
   if not webproperties_response.get('items'):
@@ -210,35 +210,37 @@ def print_profiles(profiles_response):
   print()
 
   for profile in profiles_response.get('items', []):
-    print('Kind                      = %s' % profile.get('kind'))
-    print('Account ID                = %s' % profile.get('accountId'))
-    print('Web Property ID           = %s' % profile.get('webPropertyId'))
-    print(('Internal Web Property ID = %s' %
-           profile.get('internalWebPropertyId')))
-    print('Profile ID                = %s' % profile.get('id'))
-    print('Profile Name              = %s' % profile.get('name'))
+    print(f"Kind                      = {profile.get('kind')}")
+    print(f"Account ID                = {profile.get('accountId')}")
+    print(f"Web Property ID           = {profile.get('webPropertyId')}")
+    print(f"Internal Web Property ID = {profile.get('internalWebPropertyId')}")
+    print(f"Profile ID                = {profile.get('id')}")
+    print(f"Profile Name              = {profile.get('name')}")
 
-    print('Currency         = %s' % profile.get('currency'))
-    print('Timezone         = %s' % profile.get('timezone'))
-    print('Default Page     = %s' % profile.get('defaultPage'))
+    print(f"Currency         = {profile.get('currency')}")
+    print(f"Timezone         = {profile.get('timezone')}")
+    print(f"Default Page     = {profile.get('defaultPage')}")
 
-    print(('Exclude Query Parameters        = %s' %
-           profile.get('excludeQueryParameters')))
-    print(('Site Search Category Parameters = %s' %
-           profile.get('siteSearchCategoryParameters')))
-    print(('Site Search Query Parameters    = %s' %
-           profile.get('siteSearchQueryParameters')))
+    print(
+        f"Exclude Query Parameters        = {profile.get('excludeQueryParameters')}"
+    )
+    print(
+        f"Site Search Category Parameters = {profile.get('siteSearchCategoryParameters')}"
+    )
+    print(
+        f"Site Search Query Parameters    = {profile.get('siteSearchQueryParameters')}"
+    )
 
-    print('Created          = %s' % profile.get('created'))
-    print('Updated          = %s' % profile.get('updated'))
+    print(f"Created          = {profile.get('created')}")
+    print(f"Updated          = {profile.get('updated')}")
 
-    print('Self Link        = %s' % profile.get('selfLink'))
+    print(f"Self Link        = {profile.get('selfLink')}")
     parent_link = profile.get('parentLink')
-    print('Parent link href = %s' % parent_link.get('href'))
-    print('Parent link type = %s' % parent_link.get('type'))
+    print(f"Parent link href = {parent_link.get('href')}")
+    print(f"Parent link type = {parent_link.get('type')}")
     child_link = profile.get('childLink')
-    print('Child link href  = %s' % child_link.get('href'))
-    print('Child link type  = %s' % child_link.get('type'))
+    print(f"Child link href  = {child_link.get('href')}")
+    print(f"Child link type  = {child_link.get('type')}")
     print()
 
   if not profiles_response.get('items'):
@@ -258,27 +260,26 @@ def print_goals(goals_response):
   print()
 
   for goal in goals_response.get('items', []):
-    print('Goal ID     = %s' % goal.get('id'))
-    print('Kind        = %s' % goal.get('kind'))
-    print('Self Link        = %s' % goal.get('selfLink'))
+    print(f"Goal ID     = {goal.get('id')}")
+    print(f"Kind        = {goal.get('kind')}")
+    print(f"Self Link        = {goal.get('selfLink')}")
 
-    print('Account ID               = %s' % goal.get('accountId'))
-    print('Web Property ID          = %s' % goal.get('webPropertyId'))
-    print(('Internal Web Property ID = %s' %
-           goal.get('internalWebPropertyId')))
-    print('Profile ID               = %s' % goal.get('profileId'))
+    print(f"Account ID               = {goal.get('accountId')}")
+    print(f"Web Property ID          = {goal.get('webPropertyId')}")
+    print(f"Internal Web Property ID = {goal.get('internalWebPropertyId')}")
+    print(f"Profile ID               = {goal.get('profileId')}")
 
-    print('Goal Name   = %s' % goal.get('name'))
-    print('Goal Value  = %s' % goal.get('value'))
-    print('Goal Active = %s' % goal.get('active'))
-    print('Goal Type   = %s' % goal.get('type'))
+    print(f"Goal Name   = {goal.get('name')}")
+    print(f"Goal Value  = {goal.get('value')}")
+    print(f"Goal Active = {goal.get('active')}")
+    print(f"Goal Type   = {goal.get('type')}")
 
-    print('Created     = %s' % goal.get('created'))
-    print('Updated     = %s' % goal.get('updated'))
+    print(f"Created     = {goal.get('created')}")
+    print(f"Updated     = {goal.get('updated')}")
 
     parent_link = goal.get('parentLink')
-    print('Parent link href = %s' % parent_link.get('href'))
-    print('Parent link type = %s' % parent_link.get('type'))
+    print(f"Parent link href = {parent_link.get('href')}")
+    print(f"Parent link type = {parent_link.get('type')}")
 
     # Print the goal details depending on the type of goal.
     if goal.get('urlDestinationDetails'):
@@ -310,16 +311,16 @@ def print_url_destination_goal_details(goal_details):
   """
 
   print('------ Url Destination Goal -------')
-  print('Goal URL            = %s' % goal_details.get('url'))
-  print('Case Sensitive      = %s' % goal_details.get('caseSensitive'))
-  print('Match Type          = %s' % goal_details.get('matchType'))
-  print('First Step Required = %s' % goal_details.get('firstStepRequired'))
+  print(f"Goal URL            = {goal_details.get('url')}")
+  print(f"Case Sensitive      = {goal_details.get('caseSensitive')}")
+  print(f"Match Type          = {goal_details.get('matchType')}")
+  print(f"First Step Required = {goal_details.get('firstStepRequired')}")
 
   print('------ Url Destination Goal Steps -------')
   for goal_step in goal_details.get('steps', []):
-    print('Step Number  = %s' % goal_step.get('number'))
-    print('Step Name    = %s' % goal_step.get('name'))
-    print('Step URL     = %s' % goal_step.get('url'))
+    print(f"Step Number  = {goal_step.get('number')}")
+    print(f"Step Name    = {goal_step.get('name')}")
+    print(f"Step URL     = {goal_step.get('url')}")
 
   if not goal_details.get('steps'):
     print('No Steps Configured')
@@ -333,8 +334,8 @@ def print_visit_time_on_site_goal_details(goal_details):
   """
 
   print('------ Visit Time On Site Goal -------')
-  print('Comparison Type  = %s' % goal_details.get('comparisonType'))
-  print('comparison Value = %s' % goal_details.get('comparisonValue'))
+  print(f"Comparison Type  = {goal_details.get('comparisonType')}")
+  print(f"comparison Value = {goal_details.get('comparisonValue')}")
 
 
 def print_visit_num_pages_goal_details(goal_details):
@@ -345,8 +346,8 @@ def print_visit_num_pages_goal_details(goal_details):
   """
 
   print('------ Visit Num Pages Goal -------')
-  print('Comparison Type  = %s' % goal_details.get('comparisonType'))
-  print('comparison Value = %s' % goal_details.get('comparisonValue'))
+  print(f"Comparison Type  = {goal_details.get('comparisonType')}")
+  print(f"comparison Value = {goal_details.get('comparisonValue')}")
 
 
 def print_event_goal_details(goal_details):
@@ -357,18 +358,18 @@ def print_event_goal_details(goal_details):
   """
 
   print('------ Event Goal -------')
-  print('Use Event Value  = %s' % goal_details.get('useEventValue'))
+  print(f"Use Event Value  = {goal_details.get('useEventValue')}")
 
   for event_condition in goal_details.get('eventConditions', []):
     event_type = event_condition.get('type')
-    print('Type             = %s' % event_type)
+    print(f'Type             = {event_type}')
 
     if event_type in ('CATEGORY', 'ACTION', 'LABEL'):
-      print('Match Type       = %s' % event_condition.get('matchType'))
-      print('Expression       = %s' % event_condition.get('expression'))
+      print(f"Match Type       = {event_condition.get('matchType')}")
+      print(f"Expression       = {event_condition.get('expression')}")
     else:  # VALUE type.
-      print('Comparison Type  = %s' % event_condition.get('comparisonType'))
-      print('Comparison Value = %s' % event_condition.get('comparisonValue'))
+      print(f"Comparison Type  = {event_condition.get('comparisonType')}")
+      print(f"Comparison Value = {event_condition.get('comparisonValue')}")
 
 
 def print_segments(segments_response):
@@ -384,13 +385,13 @@ def print_segments(segments_response):
   print()
 
   for segment in segments_response.get('items', []):
-    print('Segment ID = %s' % segment.get('id'))
-    print('Kind       = %s' % segment.get('kind'))
-    print('Self Link  = %s' % segment.get('selfLink'))
-    print('Name       = %s' % segment.get('name'))
-    print('Definition = %s' % segment.get('definition'))
-    print('Created    = %s' % segment.get('created'))
-    print('Updated    = %s' % segment.get('updated'))
+    print(f"Segment ID = {segment.get('id')}")
+    print(f"Kind       = {segment.get('kind')}")
+    print(f"Self Link  = {segment.get('selfLink')}")
+    print(f"Name       = {segment.get('name')}")
+    print(f"Definition = {segment.get('definition')}")
+    print(f"Created    = {segment.get('created')}")
+    print(f"Updated    = {segment.get('updated')}")
     print()
 
 
@@ -402,15 +403,15 @@ def print_pagination_info(management_response):
         Management API.
   """
 
-  print('Items per page = %s' % management_response.get('itemsPerPage'))
-  print('Total Results  = %s' % management_response.get('totalResults'))
-  print('Start Index    = %s' % management_response.get('startIndex'))
+  print(f"Items per page = {management_response.get('itemsPerPage')}")
+  print(f"Total Results  = {management_response.get('totalResults')}")
+  print(f"Start Index    = {management_response.get('startIndex')}")
 
   # These only have values if other result pages exist.
   if management_response.get('previousLink'):
-    print('Previous Link  = %s' % management_response.get('previousLink'))
+    print(f"Previous Link  = {management_response.get('previousLink')}")
   if management_response.get('nextLink'):
-    print('Next Link      = %s' % management_response.get('nextLink'))
+    print(f"Next Link      = {management_response.get('nextLink')}")
 
 
 if __name__ == '__main__':

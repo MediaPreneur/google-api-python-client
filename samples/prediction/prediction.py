@@ -103,14 +103,14 @@ def main(argv):
     while True:
       status = papi.get(id=flags.model_id, project=flags.project_id).execute()
       state = status['trainingStatus']
-      print('Training state: ' + state)
+      print(f'Training state: {state}')
       if state == 'DONE':
         break
       elif state == 'RUNNING':
         time.sleep(SLEEP_TIME)
         continue
       else:
-        raise Exception('Training Error: ' + state)
+        raise Exception(f'Training Error: {state}')
 
       # Job has completed.
       print('Training completed:')

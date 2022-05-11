@@ -93,7 +93,7 @@ class AboutHandler(webapp2.RequestHandler):
     try:
       http = decorator.http()
       user = service.people().get(userId='me').execute(http=http)
-      text = 'Hello, %s!' % user['displayName']
+      text = f"Hello, {user['displayName']}!"
 
       template = JINJA_ENVIRONMENT.get_template('welcome.html')
       self.response.write(template.render({'text': text }))
